@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>OTP Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      width: 380px;
+      padding: 30px;
+      border-radius: 15px;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      transition: transform 0.3s;
+    }
+    .container:hover {
+      transform: translateY(-5px);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #16a34a;
+      font-weight: 700;
+    }
+    label {
+      font-weight: 600;
+      color: #065f46;
+      display: block;
+      margin-bottom: 6px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      border: 1px solid #d1fae5;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      border-color: #16a34a;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      background: #16a34a;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background: #15803d;
+      transform: scale(1.02);
+    }
+    .response {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #065f46;
+      word-wrap: break-word;
+      text-align: center;
+    }
+    #otpSection {
+      margin-top: 15px;
+      transition: max-height 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>ورود با OTP</h2>
+
+    <label>شماره موبایل</label>
+    <input type="text" id="phone" placeholder="مثال: 09123456789">
+
+    <button onclick="sendOtp()">ارسال OTP</button>
+
+    <div id="otpSection" style="display:none;">
+      <label>کد OTP</label>
+      <input type="text" id="otp" placeholder="کد OTP را وارد کنید">
+      <button onclick="verifyOtp()">تایید OTP</button>
+    </div>
+
+    <div class="response" id="response"></div>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8080";
+
+    async function sendOtp() {
+      const phone = document.getElementById("phone").value.trim();
+      if (!phone) {
+        document.getElementById("response").innerText = "لطفاً شماره موبایل را وارد کنید";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/send-otp`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone })
+        });
+
+        const data = await res.json();
+        if (!data.valid) {
+          document.getElementById("response").innerText = data.message;
+          return;
+        }
+
+        document.getElementById("response").innerText = "کد OTP ارسال شد";
+        document.getElementById("otpSection").style.display = "block";
+        document.getElementById("otp").value = "";
+
+      } catch (err) {
+        document.getElementById("response").innerText = "خطا در اتصال به سرور";
+      }
+    }
+
+    async function verifyOtp() {
+      const phone = document.getElementById("phone").value.trim();
+      const otp = document.getElementById("otp").value.trim();
+      if (!otp) {
+        document.getElementById("response").innerText = "لطفاً OTP را وارد کنید";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/verify-otp`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, otp })
+        });
+
+        const data = await res.json();
+        if (res.status === 200) {
+          document.getElementById("response").innerText = "✅ OTP درست است";
+          document.getElementById("otpSection").style.display = "none";
+          document.getElementById("otp").value = "";
+        } else {
+          document.getElementById("response").innerText = "❌ OTP نادرست است";
+        }
+
+      } catch (err) {
+        document.getElementById("response").innerText = "خطا در اتصال به سرور";
+      }
+    }
+  </script>
+</body>
+</html>

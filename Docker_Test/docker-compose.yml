@@ -1,0 +1,18 @@
+services:
+  redis:
+    image: redis:7
+    container_name: dekamonde_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - dekamonde_redis_data:/data
+    networks:
+      - dekamonde_network
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+
+networks:
+  dekamonde_network:
+
+volumes:
+  dekamonde_redis_data:
