@@ -1,0 +1,93 @@
+definitions:
+  handler.PhoneRequest:
+    properties:
+      phone:
+        type: string
+    type: object
+  handler.Response:
+    properties:
+      message:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  handler.VerifyOTPRequest:
+    properties:
+      otp:
+        type: string
+      phone:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /send-otp:
+    post:
+      consumes:
+      - application/json
+      description: این متد شماره موبایل کاربر را می‌گیرد و کد OTP تولید می‌کند
+      parameters:
+      - description: شماره موبایل
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.PhoneRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: کد OTP ارسال شد
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "400":
+          description: درخواست نامعتبر
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: خطا در ارسال OTP
+          schema:
+            $ref: '#/definitions/handler.Response'
+      summary: ارسال کد OTP
+      tags:
+      - Auth
+  /verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: این متد شماره موبایل و کد OTP را گرفته و در صورت صحت، JWT تولید
+        می‌کند
+      parameters:
+      - description: شماره موبایل و OTP
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.VerifyOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT تولید شد
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: درخواست نامعتبر
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: OTP نادرست یا منقضی شده
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: خطا در تولید توکن
+          schema:
+            additionalProperties: true
+            type: object
+      summary: تایید کد OTP
+      tags:
+      - Auth
+swagger: "2.0"

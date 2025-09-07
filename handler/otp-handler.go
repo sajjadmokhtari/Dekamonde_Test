@@ -17,6 +17,17 @@ type Response struct {
 	Message string `json:"message,omitempty"`
 }
 
+// SendOtpHandler godoc
+// @Summary ارسال کد OTP
+// @Description این متد شماره موبایل کاربر را می‌گیرد و کد OTP تولید می‌کند
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body PhoneRequest true "شماره موبایل"
+// @Success 200 {object} Response "کد OTP ارسال شد"
+// @Failure 400 {object} Response "درخواست نامعتبر"
+// @Failure 500 {object} Response "خطا در ارسال OTP"
+// @Router /send-otp [post]
 func SendOtpHandler(c *gin.Context) {
 	var req PhoneRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"dekamonde/data/db"
+	_ "dekamonde/docs"
 	"dekamonde/router"
 	"log"
 )
@@ -9,7 +10,6 @@ import (
 func main() {
 
 	db.InitRedis()
-	
 
 	r := router.SetupRoutes()
 
