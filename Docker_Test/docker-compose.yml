@@ -1,4 +1,21 @@
+version: "3.9"
+
 services:
+  postgres:
+    image: postgres:16
+    container_name: dekamonde_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: MarketPlace_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - dekamonde_postgres_data:/var/lib/postgresql/data
+    networks:
+      - dekamonde_network
+    restart: unless-stopped
+
   redis:
     image: redis:7
     container_name: dekamonde_redis
@@ -11,8 +28,23 @@ services:
     restart: unless-stopped
     command: redis-server --save 60 1 --loglevel warning
 
+  pgadmin:
+    image: dpage/pgadmin4:7
+    container_name: dekamonde_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8081:80"
+    networks:
+      - dekamonde_network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
 networks:
   dekamonde_network:
 
 volumes:
+  dekamonde_postgres_data:
   dekamonde_redis_data:

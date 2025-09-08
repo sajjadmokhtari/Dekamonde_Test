@@ -15,12 +15,12 @@ type VerifyOTPRequest struct {
 
 // VerifyOtpHandler godoc
 // @Summary تایید کد OTP
-// @Description این متد شماره موبایل و کد OTP را گرفته و در صورت صحت، JWT تولید می‌کند
+// @Description این متد شماره موبایل و کد OTP را گرفته و در صورت صحت، JWT تولید می‌کند و در کوکی ذخیره می‌کند
 // @Tags Auth
 // @Accept json
 // @Produce json
 // @Param request body VerifyOTPRequest true "شماره موبایل و OTP"
-// @Success 200 {object} map[string]interface{} "JWT تولید شد"
+// @Success 200 {object} map[string]interface{} "JWT تولید شد و در کوکی ذخیره شد"
 // @Failure 400 {object} map[string]interface{} "درخواست نامعتبر"
 // @Failure 401 {object} map[string]interface{} "OTP نادرست یا منقضی شده"
 // @Failure 500 {object} map[string]interface{} "خطا در تولید توکن"
@@ -35,24 +35,36 @@ func VerifyOtpHandler(c *gin.Context) {
 
 	log.Println("VerifyOtpHandler received phone:", req.Phone, "otp:", req.OTP)
 
-	if err := services.VerifyOTP(req.Phone, req.OTP); err != nil {
+	// تغییر اصلی: دریافت User از VerifyOTP
+	user, err := services.VerifyOTP(req.Phone, req.OTP)
+	if err != nil {
 		log.Println("❌ OTP verification failed:", err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Generate JWT token
-	token, err := services.GenerateJWT(req.Phone, "user")
+	// Generate JWT token برای کاربر موجود یا جدید
+	token, err := services.GenerateJWT(user.Phone, "user")
 	if err != nil {
 		log.Println("❌ Failed to generate JWT:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "خطا در تولید توکن"})
 		return
 	}
-	log.Println("✅ JWT for", req.Phone, ":", token)
 
-	log.Println("✅ OTP verified and JWT generated for phone:", req.Phone)
+	// ست کردن توکن در کوکی امن و HttpOnly
+	c.SetCookie(
+		"token",  // نام کوکی
+		token,    // مقدار توکن JWT
+		3600*24,  // انقضا 24 ساعت به ثانیه
+		"/",      // مسیر کوکی
+		"",       // دامنه، خالی برای localhost
+		false,    // Secure (برای HTTPS باید true باشد)
+		true,     // HttpOnly
+	)
+
+	log.Println("✅ JWT generated and stored in cookie for", user.Phone)
 	c.JSON(http.StatusOK, gin.H{
-		"message": "کد OTP با موفقیت تایید شد",
+		"message": "کد OTP با موفقیت تایید شد و توکن در کوکی ذخیره شد",
 		"token":   token,
 	})
 }

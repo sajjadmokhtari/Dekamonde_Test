@@ -51,12 +51,78 @@ paths:
       summary: ارسال کد OTP
       tags:
       - Auth
+  /user/{phone}:
+    get:
+      consumes:
+      - application/json
+      description: با استفاده از شماره تلفن، جزئیات کاربر را دریافت می‌کند
+      parameters:
+      - description: شماره تلفن کاربر
+        in: path
+        name: phone
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: کاربر یافت نشد
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: خطا در دریافت کاربر
+          schema:
+            additionalProperties: true
+            type: object
+      summary: دریافت جزئیات یک کاربر
+      tags:
+      - Users
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: دریافت لیست کاربران با قابلیت جستجو و صفحه‌بندی
+      parameters:
+      - description: جستجو بر اساس شماره تلفن یا سایر فیلدها
+        in: query
+        name: search
+        type: string
+      - description: شماره صفحه
+        in: query
+        name: page
+        type: integer
+      - description: تعداد نتایج در هر صفحه
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: خطا در دریافت لیست کاربران
+          schema:
+            additionalProperties: true
+            type: object
+      summary: دریافت لیست کاربران
+      tags:
+      - Users
   /verify-otp:
     post:
       consumes:
       - application/json
       description: این متد شماره موبایل و کد OTP را گرفته و در صورت صحت، JWT تولید
-        می‌کند
+        می‌کند و در کوکی ذخیره می‌کند
       parameters:
       - description: شماره موبایل و OTP
         in: body
@@ -68,7 +134,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: JWT تولید شد
+          description: JWT تولید شد و در کوکی ذخیره شد
           schema:
             additionalProperties: true
             type: object

@@ -50,9 +50,107 @@
                 }
             }
         },
+        "/user/{phone}": {
+            "get": {
+                "description": "با استفاده از شماره تلفن، جزئیات کاربر را دریافت می‌کند",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "دریافت جزئیات یک کاربر",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "شماره تلفن کاربر",
+                        "name": "phone",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "کاربر یافت نشد",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "خطا در دریافت کاربر",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "دریافت لیست کاربران با قابلیت جستجو و صفحه‌بندی",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "دریافت لیست کاربران",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "جستجو بر اساس شماره تلفن یا سایر فیلدها",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "شماره صفحه",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "تعداد نتایج در هر صفحه",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "خطا در دریافت لیست کاربران",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/verify-otp": {
             "post": {
-                "description": "این متد شماره موبایل و کد OTP را گرفته و در صورت صحت، JWT تولید می‌کند",
+                "description": "این متد شماره موبایل و کد OTP را گرفته و در صورت صحت، JWT تولید می‌کند و در کوکی ذخیره می‌کند",
                 "consumes": [
                     "application/json"
                 ],
@@ -76,7 +174,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "JWT تولید شد",
+                        "description": "JWT تولید شد و در کوکی ذخیره شد",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
