@@ -28,7 +28,7 @@ func SetupRoutes() *gin.Engine {
 	}
 
 	// استاتیک برای فرانت‌اند
-	r.Static("/front", "./frontend")
+	r.Static("/front", "/app/frontend")
 
 	return r
 }
